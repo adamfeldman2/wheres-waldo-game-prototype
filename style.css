@@ -1,0 +1,17 @@
+body {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+div {
+  background: url('https://image.ibb.co/khAmVQ/waldo.jpg');
+  background-size: cover;
+  width: 320px;
+  height: 480px;
+  background-repeat: no-repeat;
+}
