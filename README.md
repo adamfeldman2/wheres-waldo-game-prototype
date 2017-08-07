@@ -1,1 +1,1 @@
-# wheres-waldo-game-prototype
+# THIS WILL ONLY WORK ON MOBILE DEVICES
