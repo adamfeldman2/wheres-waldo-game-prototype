@@ -1,51 +1,99 @@
-// dom selectors
-var div = document.querySelector('div');
-var circle = document.querySelector('circle');
+class Level {
+  constructor(backgroundImage, circleRadius, hiddenCharacterX, hiddenCharacterY) {
+    this.backgroundImage = backgroundImage;
+    this.circleRadius = circleRadius;
+    this.hiddenCharacterX = hiddenCharacterX;
+    this.hiddenCharacterY = hiddenCharacterY;
 
-// constant variables
-var divWidth = div.offsetWidth;
-var divHeight = div.offsetHeight;
-var circleRadius = 45;
+    // dom selectors
+    this.main = document.querySelector('.main');
+    this.circle = document.querySelector('circle');
+    this.win = document.querySelector('.win');
 
-// updateable variables
-var circleX = divWidth / 2;
-var circleY = divHeight / 2;
+    // constant variables
+    this.mainWidth = this.main.offsetWidth;
+    this.mainHeight = this.main.offsetHeight;
 
-// initial circle attibutes
-circle.setAttribute('cx', circleX);
-circle.setAttribute('cy', circleY);
-circle.setAttribute('r', circleRadius);
+    // updateable variables
+    this.circleX = this.mainWidth / 2;
+    this.circleY = this.mainHeight / 2;
+  }
 
-function updateCircle(x, y) {
-  // update coords
-  circleX = x;
-  circleY = y;
+  setInitialCircleAttributes() {
+    this.circle.setAttribute('cx', this.circleX);
+    this.circle.setAttribute('cy', this.circleY);
+    this.circle.setAttribute('r', this.circleRadius);
+  }
 
-  // update circle position on screen
-  circle.setAttribute('cx', circleX);
-  circle.setAttribute('cy', circleY);
+  updateCircle(x, y) {
+    this.circleX = x;
+    this.circleY = y;
+
+    this.circle.setAttribute('cx', this.circleX);
+    this.circle.setAttribute('cy', this.circleY);
+  }
+
+  didUserFindCharacter(touchMoveX, touchMoveY) {
+    const circleLeft = touchMoveX - this.circleRadius;
+    const circleRight = touchMoveX + this.circleRadius;
+    const circleTop = touchMoveY - this.circleRadius;
+    const circleBottom = touchMoveY + this.circleRadius;
+    let counter = 0;
+
+    const self = this;
+
+    let timeout = undefined;
+
+    if (this.hiddenCharacterX >= circleLeft && this.hiddenCharacterX <= circleRight && this.hiddenCharacterY >= circleTop && this.hiddenCharacterY <= circleBottom) {
+      timeout = window.setTimeout(displayWin, 1000);
+      console.log(timeout);
+    } else {
+      console.log(timeout);
+      window.clearTimeout(timeout);
+    }
+
+    function displayWin() {
+      self.win.style.display = 'flex';
+    }
+
+    // console.log('Character X: ', this.hiddenCharacterX);
+    // console.log('Character Y: ', this.hiddenCharacterY);
+    // console.log('Circle Left: ', circleLeft);
+    // console.log('Circle Right: ', circleRight);
+    // console.log('Circle Top: ', circleTop);
+    // console.log('Circle Bottom: ', circleBottom);
+    // console.log('-----------------------');
+  }
+
+  updateCircleBasedOnTouch() {
+    this.main.addEventListener('touchstart', e => {
+      let mainLeft = this.main.getBoundingClientRect().left;
+      let mainTop = this.main.getBoundingClientRect().top;
+
+      // returns coords of where touched on main
+      let touchX = e.changedTouches[0].clientX - mainLeft;
+      let touchY = e.changedTouches[0].clientY - mainTop - this.circleRadius * 1.5;
+
+      this.updateCircle(touchX, touchY);
+
+      this.main.addEventListener('touchmove', e => {
+        let touchMoveX = e.changedTouches[0].clientX - mainLeft;
+        let touchMoveY = e.changedTouches[0].clientY - mainTop - this.circleRadius * 1.5;
+
+        this.updateCircle(touchMoveX, touchMoveY);
+        this.didUserFindCharacter(touchMoveX, touchMoveY);
+      });
+    });
+  }
+
+  init() {
+    this.setInitialCircleAttributes();
+    // draws background
+    document.querySelector('.main').style.background = `url(${this.backgroundImage})`;
+    this.updateCircleBasedOnTouch();
+  }
 }
 
-function updateCircleBasedOnTouchStart() {
-  div.addEventListener('touchstart', function(e) {
-    var self = this;
+const level1 = new Level('https://image.ibb.co/khAmVQ/waldo.jpg', 40, 227, 95);
 
-    var divLeft = div.getBoundingClientRect().left;
-    var divTop = div.getBoundingClientRect().top;
-
-    // returns coords of where touched on div
-    var touchX = e.changedTouches[0].clientX - divLeft;
-    var touchY = e.changedTouches[0].clientY - divTop - (circleRadius * 1.5);
-
-    updateCircle(touchX, touchY);
-
-    self.addEventListener('touchmove', function(e) {
-      var touchMoveX = e.changedTouches[0].clientX - divLeft;
-      var touchMoveY = e.changedTouches[0].clientY - divTop - (circleRadius * 1.5);
-      
-      updateCircle(touchMoveX, touchMoveY);
-    })
-  });
-}
-
-updateCircleBasedOnTouchStart();
+level1.init();
