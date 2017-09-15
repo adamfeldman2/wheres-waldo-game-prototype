@@ -8,7 +8,8 @@ class Level {
     // dom selectors
     this.main = document.querySelector('.main');
     this.circle = document.querySelector('circle');
-    this.win = document.querySelector('.win');
+    this.popup = document.querySelector('.popup');
+    this.found = document.querySelector('.found');
 
     // constant variables
     this.mainWidth = this.main.offsetWidth;
@@ -33,38 +34,6 @@ class Level {
     this.circle.setAttribute('cy', this.circleY);
   }
 
-  didUserFindCharacter(touchMoveX, touchMoveY) {
-    const circleLeft = touchMoveX - this.circleRadius;
-    const circleRight = touchMoveX + this.circleRadius;
-    const circleTop = touchMoveY - this.circleRadius;
-    const circleBottom = touchMoveY + this.circleRadius;
-    let counter = 0;
-
-    const self = this;
-
-    let timeout = undefined;
-
-    if (this.hiddenCharacterX >= circleLeft && this.hiddenCharacterX <= circleRight && this.hiddenCharacterY >= circleTop && this.hiddenCharacterY <= circleBottom) {
-      timeout = window.setTimeout(displayWin, 1000);
-      console.log(timeout);
-    } else {
-      console.log(timeout);
-      window.clearTimeout(timeout);
-    }
-
-    function displayWin() {
-      self.win.style.display = 'flex';
-    }
-
-    // console.log('Character X: ', this.hiddenCharacterX);
-    // console.log('Character Y: ', this.hiddenCharacterY);
-    // console.log('Circle Left: ', circleLeft);
-    // console.log('Circle Right: ', circleRight);
-    // console.log('Circle Top: ', circleTop);
-    // console.log('Circle Bottom: ', circleBottom);
-    // console.log('-----------------------');
-  }
-
   updateCircleBasedOnTouch() {
     this.main.addEventListener('touchstart', e => {
       let mainLeft = this.main.getBoundingClientRect().left;
@@ -81,9 +50,36 @@ class Level {
         let touchMoveY = e.changedTouches[0].clientY - mainTop - this.circleRadius * 1.5;
 
         this.updateCircle(touchMoveX, touchMoveY);
-        this.didUserFindCharacter(touchMoveX, touchMoveY);
       });
     });
+  }
+
+  didUserFindCharacter() {
+    const circleLeft = this.circleX - this.circleRadius;
+    const circleRight = this.circleX + this.circleRadius;
+    const circleTop = this.circleY - this.circleRadius;
+    const circleBottom = this.circleY + this.circleRadius;
+
+    const self = this;
+
+    if (this.hiddenCharacterX >= circleLeft && this.hiddenCharacterX <= circleRight && this.hiddenCharacterY >= circleTop && this.hiddenCharacterY <= circleBottom) {
+      displayPopup('YOU WIN!', true);
+    } else {
+      displayPopup('TRY AGAIN', false);
+    }
+
+    function displayPopup(text, didUserWin) {
+      self.popup.textContent = text;
+      self.popup.style.display = 'flex';
+
+      if (didUserWin) {
+        document.body.style.pointerEvents = 'none';
+      } else {
+        setTimeout(function() {
+          self.popup.style.display = 'none';
+        }, 820);
+      }
+    }
   }
 
   init() {
@@ -91,6 +87,9 @@ class Level {
     // draws background
     document.querySelector('.main').style.background = `url(${this.backgroundImage})`;
     this.updateCircleBasedOnTouch();
+    this.found.addEventListener('touchend', () => {
+      this.didUserFindCharacter();
+    });
   }
 }
 
